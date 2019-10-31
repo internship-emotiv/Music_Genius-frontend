@@ -1,10 +1,7 @@
 import React from "react";
 import Websocket from "react-websocket";
 import { Button } from "reactstrap"
-// import { threadId } from "worker_threads";
 import Spotify from './Spotify'
-import { tsImportEqualsDeclaration } from "@babel/types";
-import { connectableObservableDescriptor } from "rxjs/internal/observable/ConnectableObservable";
 
 export default class Cortex extends React.Component{
     constructor(props) {
@@ -165,7 +162,7 @@ export default class Cortex extends React.Component{
 
     connectHeadset(){
 
-        if (this.state.headset != "")
+        if (this.state.headset !== "")
         {
             let msg = {
 
@@ -182,9 +179,9 @@ export default class Cortex extends React.Component{
     }
 
     disconnectHeadset(){
-        if (this.state.connected == true){ //check if app is actually connected
+        if (this.state.connected === true){ //check if app is actually connected
 
-            if (this.state.headset != "")
+            if (this.state.headset !== "")
             {
                 let msg = {
 
@@ -206,10 +203,10 @@ export default class Cortex extends React.Component{
     controlDevice_callback = (data) => {
         console.log("Running callback for connest and disconnet()");
         console.log(data);
-        if (data.result.command == "connect"){
+        if (data.result.command === "connect"){
             console.log("connected!!!");
             this.state.connected = true;
-        } else if (data.result.command == "disconnect"){
+        } else if (data.result.command === "disconnect"){
             console.log("disconnected. :(");
             this.state.connected = false;
         } else { //refresh
@@ -274,7 +271,7 @@ export default class Cortex extends React.Component{
     // }
 
     closeSession(){
-        if (this.state.session_connected == true){
+        if (this.state.session_connected === true){
         let msg = {
             "id":this.state.id_sequence,
             "jsonrpc": "2.0",
@@ -306,7 +303,7 @@ export default class Cortex extends React.Component{
     }
 // streams has default value of all streams; if user does not specify streams, all_streams will be subscribed
     subscribe(streams = this.state.all_streams){
-        if (this.state.connected == true && this.state.session_connected == true){
+        if (this.state.connected === true && this.state.session_connected === true){
         let msg = {
                 "id":this.state.id_sequence,
                 "jsonrpc": "2.0",
@@ -328,7 +325,7 @@ subscribe_callback = (data) => {
 }
 
 unsubscribe(){
-    if (this.state.connected == true && this.state.session_connected == true){
+    if (this.state.connected === true && this.state.session_connected === true){
     let msg = {
             "id":this.state.id_sequence,
             "jsonrpc": "2.0",
@@ -358,7 +355,7 @@ delete this.state.callbacks[data.id];
             console.log("executing callback for id = " + result.id);
             this.state.callbacks[result.id](result);
         }
-        if (this.state.connected == true && this.state.session_connected == true && result.met != undefined){
+        if (this.state.connected === true && this.state.session_connected === true && result.met !== undefined){
           return this.state.eng.push(result.met[1])
         }
     }
