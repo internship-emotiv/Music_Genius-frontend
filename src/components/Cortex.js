@@ -11,8 +11,6 @@ export default class Cortex extends React.Component{
             method: "", //storing the last request method so we know how to handle the response
             headset: "", //storing the headset id
             connected: false,
-            id_sequence: 1,  // sequence for websocket calls
-            callbacks: {},  // keys are id_sequence, values are callbacks
             session_id: "",
             session_connected: false,
             all_streams: ["eeg", "mot", "dev", "pow", "met", "com",  "fac", "sys"],
@@ -23,7 +21,8 @@ export default class Cortex extends React.Component{
             int: "",
             foc: ""
           };
-
+        this.callbacks = {};  // keys are id_sequence, values are callbacks
+        this.id_sequence = 1;  // sequence for websocket calls
         this.handleData = this.handleData.bind(this);
     }
 
@@ -32,11 +31,10 @@ export default class Cortex extends React.Component{
     }
 
     sendMessage(msg, callback){
-
-        let id = this.state.id_sequence;
-        this.state.id_sequence += 1;
-        this.state.callbacks[id] = callback;
-        //console.log(msg);
+        let id = this.id_sequence
+        this.id_sequence += 1;
+        this.callbacks[id] = callback;
+        console.log(msg);
         this.refWebSocket.sendMessage(JSON.stringify(msg));
     }
 
@@ -122,7 +120,9 @@ export default class Cortex extends React.Component{
     authentication_callback = (data) => {
         console.log("Running callback for authentication()");
         console.log(data);
-        this.state.token = data.result.cortexToken;
+        this.setState({
+            token: 'data.result.cortexToken'
+        })
         console.log("[DEBUG] received token = " + this.state.token)
 
 
@@ -147,10 +147,15 @@ export default class Cortex extends React.Component{
         console.log("Running callback for queryHeadset()");
         console.log(data);
         if (data.result.length > 0){
-            this.state.headset = data.result[0].id;
+            this.setState({
+                headset: 'data.result[0].id'
+            })
+        
             console.log("[DEBUG] headset id is: " + this.state.headset);
         } else{
-            this.state.headset = "";
+            this.setState({
+                headset: ""
+            })
             console.log("[DEBUG] no headsets found");
         }
         // remove callback from callbacks object
@@ -205,10 +210,14 @@ export default class Cortex extends React.Component{
         console.log(data);
         if (data.result.command === "connect"){
             console.log("connected!!!");
-            this.state.connected = true;
+           this.setState({
+               connected: true
+           });
         } else if (data.result.command === "disconnect"){
             console.log("disconnected. :(");
-            this.state.connected = false;
+            this.setState({
+                connected: false
+            });
         } else { //refresh
             console.log("refresh request was called, not sure what we do with that.")
         }
@@ -240,8 +249,10 @@ export default class Cortex extends React.Component{
         if (data.error){
             console.log("error starting session: " + data.error.message);
         } else {
-            this.state.session_id = data.result.id;
-            this.state.session_connected = true;
+            this.setState({
+                session_id: 'data.result.id',
+                session_connected: true
+            })
             console.log(`Session id is ${this.state.session_id}`);
             this.subscribe();
         }
@@ -297,8 +308,9 @@ export default class Cortex extends React.Component{
     closeSession_callback = (data) => {
         console.log("Running callback for closeSession()");
         console.log(data);
-
-        this.state.session_connected = false;
+        this.setState({
+            session_connected: false
+        });
         delete this.state.callbacks[data.id];
     }
 // streams has default value of all streams; if user does not specify streams, all_streams will be subscribed
